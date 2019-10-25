@@ -27,4 +27,6 @@ The returned collection contains the paths to all files that have been unpacked,
 
 The unpacker service is thread-safe and re-entrant, as long as the archive and target directory are not modified during unpacking.
 
+---
 
+![The destruction left by Spike Lee, 2013, colorized](https://git.wukl.net/uploads/-/system/project/avatar/103/unpacker+border.png)
