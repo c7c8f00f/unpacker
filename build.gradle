@@ -1,6 +1,12 @@
 plugins {
     id 'java-library'
+    id 'maven'
+    id 'signing'
 }
+
+group = 'nl.f00f'
+archivesBaseName = 'unpacker'
+version = '1.0.0'
 
 repositories {
     jcenter()
@@ -10,13 +16,13 @@ repositories {
 dependencies {
     api 'nl.f00f:annotations:1.0.0'
 
-    implementation 'org.slf4j:slf4j-api:1.7.+'
+    implementation 'org.slf4j:slf4j-api:1.7.28'
     implementation 'org.apache.commons:commons-compress:1.18'
     implementation 'org.tukaani:xz:1.8'
 
-    testImplementation 'ch.qos.logback:logback-classic:1.2.+'
-    testImplementation 'org.assertj:assertj-core:3.12.+'
-    testImplementation 'org.mockito:mockito-core:2.27.+'
+    testImplementation 'ch.qos.logback:logback-classic:1.2.3'
+    testImplementation 'org.assertj:assertj-core:3.12.2'
+    testImplementation 'org.mockito:mockito-core:2.27.0'
     testImplementation 'net.wukl:exceptionverifier:0.9.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
@@ -24,4 +30,67 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name rootProject.name
+                packaging 'jar'
+                description 'Simple archive unpacking for Java'
+                url 'https://git.wukl.net/f00f/unpacker'
+
+                scm {
+                    connection 'scm:git:https://git.wukl.net/f00f/unpacker.git'
+                    developerConnection 'scm:git:ssh://git@git.wukl.net:f00f/unpacker.git'
+                    url 'https://git.wukl.net/f00f/unpacker.git'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT License'
+                        url 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'wukl'
+                        name 'Luc Everse'
+                        email 'luc@wukl.net'
+                    }
+                }
+            }
+        }
+    }
 }
